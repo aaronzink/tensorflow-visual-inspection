@@ -9,8 +9,5 @@ bounding_boxes = ((5,69,261,326),(305,69,561,326),(5,429,261,686),(325,429,581,6
 These boxes are drawn on the images in the ./bounding_boxes folder.
 
 File names are in the format 34_0110.jpg. 
-34 is the image number, 0110 is a one hot encoding of the presence or screws from left to right, top to bottom. 0110 means there are two screws missing and two screws present eg.
-``` bash
-[ ][S]
-[S][ ]
-```
+34 is the image number, 0110 is a one hot encoding of the presence or screws from left to right, top to bottom. 1001 means there are two screws missing and two screws present eg.
+<img src="https://raw.githubusercontent.com/aaronzink/tensorflow-visual-inspection/master/datasets/screws/train_val_set/100_1001.jpg" width="130">
