@@ -1,6 +1,6 @@
 # Screws object_detection data set
 
-This data set is designed to train the object_detection model. It simulates a visual quality inspection on an assembly line that installs four screws in a block of wood. The photos were taken with a cell phone placed about 15 cm away from a wooden block with four #2 Robertson wood screws in a square pattern. The data set is labled with object classes ("hole","screw") and bounding boxes.
+This data set is designed to train [models/object_detection](../../models/object_detection). It simulates a visual quality inspection on an assembly line that installs four screws in a block of wood. The photos were taken with a cell phone placed about 15 cm away from a wooden block with four #2 Robertson wood screws in a square pattern. The data set is labled with object classes ("hole","screw") and bounding boxes.
 
 In some of the images one or more of the screws are missing. A missing screw is labeled as a hole. For every image four bounding boxes are defined and labeled as either a screw or a hole.
 
