@@ -1,0 +1,8 @@
+Screws Data Format
+
+The four bounding boxes used in pixels (xmin, ymin, xmax, ymax)
+bounding_boxes = ((5,69,261,326),(305,69,561,326),(5,429,261,686),(325,429,581,686))
+
+File names are in the format 34_0110.jpg. 34 is the image number, 0110 is a one hot encoding of the presence or screws from left to right, top to bottom. 0110 means there are two screws missing and two screws present eg.
+[ ][S]
+[S][ ]
