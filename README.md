@@ -2,7 +2,6 @@
   <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="180"><br><br>
 </div>
 
------------------
 # tensorflow-visual-inspection
 This repository contains experiments with the models in [tensorflow/models/](https://github.com/tensorflow/models/). The idea of visual inspection is to use machine vision in manufacturing to locate materials or detect quality issues.
 
