@@ -1,11 +1,9 @@
 # Quick Start: Distributed Training of the screws experiment on Google Cloud
 
 This page is a walkthrough for training an object detector using the Tensorflow
-Object Detection API. In this tutorial, we'll be training on the Oxford-IIIT Pets
-dataset to build a system to detect various breeds of cats and dogs. The output
-of the detector will look like the following:
+Object Detection API. In this tutorial, we'll be training on [datasets/screws](https://github.com/aaronzink/tensorflow-visual-inspection/tree/master/datasets/screws) to build a system to detect when a screw is missing. The output of the detector will look like the following:
 
-![](img/oxford_pet.png)
+![](img/TODO.png)
 
 ## Setting up a Project on Google Cloud
 
@@ -39,47 +37,72 @@ export YOUR_GCS_BUCKET=${YOUR_GCS_BUCKET}
 
 ## Installing Tensorflow and the Tensorflow Object Detection API
 
-Please run through the [installation instructions](installation.md) to install
-Tensorflow and all it dependencies. Ensure the Protobuf libraries are
-compiled and the library directories are added to `PYTHONPATH`.
+Install tensorflow on your local machine. The files are needed to get packages ready for Cloud ML uploads. Make sure you can use "pip" to install from command line and "apt-get" on Ubuntu or "brew" on MacOS.
 
-## Getting the Oxford-IIIT Pets Dataset and Uploading it to Google Cloud Storage
+``` bash
+pip install tensorflow
+sudo pip install pillow
+sudo pip install lxml
+sudo pip install jupyter
+sudo pip install matplotlib
+```
+
+Ubuntu
+``` bash
+sudo apt-get install protobuf-compiler
+```
+
+MacOS
+``` bash
+brew install protobuf
+```
+
+The Tensorflow Object Detection API uses Protobufs to configure model and
+training parameters. Before the framework can be used, the Protobuf libraries
+must be compiled. This should be done by running the following command from
+the tensorflow-visual-inspection/models directory:
+
+
+``` bash
+# From tensorflow-visual-inspection/models/
+protoc object_detection/protos/*.proto --python_out=.
+```
+
+When running locally, the tensorflow-visual-inspection/models/ and slim directories should be
+appended to PYTHONPATH. This can be done by running the following from
+tensorflow-visual-inspection/models/:
+
+
+``` bash
+# From tensorflow-visual-inspection/models/
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+```
+
+Note: This command needs to run from every new terminal you start. If you wish
+to avoid running this manually, you can add it as a new line to the end of your
+~/.bashrc file.
+
+
+You can test that you have correctly installed the Tensorflow Object Detection\
+API by running the following command:
+
+```bash
+python object_detection/builders/model_builder_test.py
+```
+
+## Uploading the screws dataset to Google Cloud Storage
 
 In order to train a detector, we require a dataset of images, bounding boxes and
-classifications. For this demo, we'll use the Oxford-IIIT Pets dataset. The raw
-dataset for Oxford-IIIT Pets lives
-[here](http://www.robots.ox.ac.uk/~vgg/data/pets/). You will need to download
-both the image dataset [`images.tar.gz`](http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz)
-and the groundtruth data [`annotations.tar.gz`](http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz)
-to the `tensorflow/models` directory and unzip them. This may take some time.
-
-``` bash
-# From tensorflow/models/
-wget http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz
-wget http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz
-tar -xvf images.tar.gz
-tar -xvf annotations.tar.gz
-```
-
-After downloading the tarballs, your `tensorflow/models` directory should appear
-as follows:
-
-```lang-none
-- images.tar.gz
-- annotations.tar.gz
-+ images/
-+ annotations/
-+ object_detection/
-... other files and directories
-```
+classifications. Clone this github repository to your local machine. It contains the
+screws dataset and the scripts we'll need to process it.
 
 The Tensorflow Object Detection API expects data to be in the TFRecord format,
-so we'll now run the `create_pet_tf_record` script to convert from the raw
-Oxford-IIIT Pet dataset into TFRecords. Run the following commands from the
-`tensorflow/models` directory:
+so we'll now run the `create_screws_tf_record` script to convert from the raw
+screws dataset into TFRecords. Run the following commands from the
+`tensorflow-visual-inspection/models` directory:
 
 ``` bash
-# From tensorflow/models/
+# From tensorflow-visual-inspection/models/
 python object_detection/create_pet_tf_record.py \
     --label_map_path=object_detection/data/pet_label_map.pbtxt \
     --data_dir=`pwd` \
@@ -90,14 +113,14 @@ Note: It is normal to see some warnings when running this script. You may ignore
 them.
 
 Two TFRecord files named `pet_train.record` and `pet_val.record` should be
-generated in the `tensorflow/models` directory.
+generated in the `tensorflow-visual-inspection/models` directory.
 
 Now that the data has been generated, we'll need to upload it to Google Cloud
 Storage so the data can be accessed by ML Engine. Run the following command to
 copy the files into your GCS bucket (substituting `${YOUR_GCS_BUCKET}`):
 
 ``` bash
-# From tensorflow/models/
+# From tensorflow-visual-inspection/models/
 gsutil cp pet_train.record gs://${YOUR_GCS_BUCKET}/data/pet_train.record
 gsutil cp pet_val.record gs://${YOUR_GCS_BUCKET}/data/pet_val.record
 gsutil cp object_detection/data/pet_label_map.pbtxt gs://${YOUR_GCS_BUCKET}/data/pet_label_map.pbtxt
@@ -145,7 +168,7 @@ upload your edited file onto GCS, making note of the path it was uploaded to
 (we'll need it when starting the training/eval jobs).
 
 ``` bash
-# From tensorflow/models/
+# From tensorflow-visual-inspection/models/
 
 # Edit the faster_rcnn_resnet101_pets.config template. Please note that there
 # are multiple places where PATH_TO_BE_CONFIGURED needs to be set.
@@ -187,10 +210,10 @@ Before we can start a job on Google Cloud ML Engine, we must:
 2. Write a cluster configuration for our Google Cloud ML job.
 
 To package the Tensorflow Object Detection code, run the following commands from
-the `tensorflow/models/` directory:
+the `tensorflow-visual-inspection/models/` directory:
 
 ``` bash
-# From tensorflow/models/
+# From tensorflow-visual-inspection/models/
 python setup.py sdist
 (cd slim && python setup.py sdist)
 ```
@@ -202,11 +225,11 @@ For running the training Cloud ML job, we'll configure the cluster to use 10
 training jobs (1 master + 9 workers) and three parameters servers. The
 configuration file can be found at `object_detection/samples/cloud/cloud.yml`.
 
-To start training, execute the following command from the `tensorflow/models/`
+To start training, execute the following command from the `tensorflow-visual-inspection/models/`
 directory:
 
 ``` bash
-# From tensorflow/models/
+# From tensorflow-visual-inspection/models/
 gcloud ml-engine jobs submit training `whoami`_object_detection_`date +%s` \
     --job-dir=gs://${YOUR_GCS_BUCKET}/train \
     --packages dist/object_detection-0.1.tar.gz,slim/dist/slim-0.1.tar.gz \
@@ -221,7 +244,7 @@ gcloud ml-engine jobs submit training `whoami`_object_detection_`date +%s` \
 Once training has started, we can run an evaluation concurrently:
 
 ``` bash
-# From tensorflow/models/
+# From tensorflow-visual-inspection/models/
 gcloud ml-engine jobs submit training `whoami`_object_detection_eval_`date +%s` \
     --job-dir=gs://${YOUR_GCS_BUCKET}/train \
     --packages dist/object_detection-0.1.tar.gz,slim/dist/slim-0.1.tar.gz \
@@ -288,10 +311,10 @@ three files:
 * `model.ckpt-${CHECKPOINT_NUMBER}.meta`
 
 After you've identified a candidate checkpoint to export, run the following
-command from `tensorflow/models`:
+command from `tensorflow-visual-inspection/models`:
 
 ``` bash
-# From tensorflow/models
+# From tensorflow-visual-inspection/models
 gsutil cp gs://${YOUR_GCS_BUCKET}/train/model.ckpt-${CHECKPOINT_NUMBER}.* .
 python object_detection/export_inference_graph.py \
     --input_type image_tensor \

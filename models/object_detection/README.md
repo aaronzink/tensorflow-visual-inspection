@@ -13,11 +13,13 @@ computer vision needs, and we hope that you will as well.
 
 ## Screws
 Detect the absence of screws in a block of wood
+
 [datasets/screws](https://github.com/aaronzink/tensorflow-visual-inspection/tree/master/datasets/screws)
+
 [Quick Start: training the screw detector](docs/running_screws.md)
 
 
-## Google Docs
+# Google Docs
 
 Before You Start:
 * <a href='docs/installation.md'>Installation</a><br>
