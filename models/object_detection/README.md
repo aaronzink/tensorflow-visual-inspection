@@ -6,18 +6,18 @@ TensorFlow that makes it easy to construct, train and deploy object detection
 models.  At Google we’ve certainly found this codebase to be useful for our
 computer vision needs, and we hope that you will as well.
 <p align="center">
-  <img src="docs/img/kites_detections_output.jpg" width=676 height=450>
+  <img src="docs/img/kites_detections_output.jpg" width=470>
 </p>
 
 # Visual Inspection Experiments
 
 ## Screws
-Detect the absence of screws in a block of wood
-[datasets/screws](https://github.com/aaronzink/tensorflow-visual-inspection/tree/master/datasets/screws)
-[Quick Start: training the screw detector](docs/running_screws.md)
+Detect the absence of screws in a block of wood.
+* [datasets/screws](../../datasets/screws)
+* [Quick Start: training the screw detector](docs/running_screws.md)
 
 
-## Google Docs
+# Google Documentation
 
 Before You Start:
 * <a href='docs/installation.md'>Installation</a><br>
