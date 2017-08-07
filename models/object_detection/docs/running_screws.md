@@ -2,8 +2,9 @@
 
 This page is a walkthrough for training an object detector using the Tensorflow
 Object Detection API. In this tutorial, we'll be training on [datasets/screws](https://github.com/aaronzink/tensorflow-visual-inspection/tree/master/datasets/screws) to build a system to detect when a screw is missing. The output of the detector will look like the following:
-
-![](img/TODO.png)
+<p align="center">
+  <img src="img/screws_first_result.png" width=250>
+</p>
 
 ## Setting up a Project on Google Cloud
 
@@ -103,8 +104,8 @@ screws dataset into TFRecords. Run the following commands from the
 
 ``` bash
 # From tensorflow-visual-inspection/models/
-python object_detection/create_pet_tf_record.py \
-    --label_map_path=object_detection/data/pet_label_map.pbtxt \
+python object_detection/create_screw_tf_record.py \
+    --label_map_path=object_detection/data/screw_label_map.pbtxt \
     --data_dir=`pwd` \
     --output_dir=`pwd`
 ```
@@ -112,7 +113,7 @@ python object_detection/create_pet_tf_record.py \
 Note: It is normal to see some warnings when running this script. You may ignore
 them.
 
-Two TFRecord files named `pet_train.record` and `pet_val.record` should be
+Two TFRecord files named `screw_train.record` and `screw_val.record` should be
 generated in the `tensorflow-visual-inspection/models` directory.
 
 Now that the data has been generated, we'll need to upload it to Google Cloud
@@ -121,9 +122,9 @@ copy the files into your GCS bucket (substituting `${YOUR_GCS_BUCKET}`):
 
 ``` bash
 # From tensorflow-visual-inspection/models/
-gsutil cp pet_train.record gs://${YOUR_GCS_BUCKET}/data/pet_train.record
-gsutil cp pet_val.record gs://${YOUR_GCS_BUCKET}/data/pet_val.record
-gsutil cp object_detection/data/pet_label_map.pbtxt gs://${YOUR_GCS_BUCKET}/data/pet_label_map.pbtxt
+gsutil cp screw_train.record gs://${YOUR_GCS_BUCKET}/data/screw_train.record
+gsutil cp screw_val.record gs://${YOUR_GCS_BUCKET}/data/screw_val.record
+gsutil cp object_detection/data/screw_label_map.pbtxt gs://${YOUR_GCS_BUCKET}/data/screw_label_map.pbtxt
 ```
 
 Please remember the path where you upload the data to, as we will need this
@@ -157,7 +158,7 @@ parameters and eval parameters are all defined by a config file. More details
 can be found [here](configuring_jobs.md). For this tutorial, we will use some
 predefined templates provided with the source code. In the
 `object_detection/samples/configs` folder, there are skeleton object_detection
-configuration files. We will use `faster_rcnn_resnet101_pets.config` as a
+configuration files. We will use `faster_rcnn_resnet101_screws.config` as a
 starting point for configuring the pipeline. Open the file with your favourite
 text editor.
 
@@ -170,14 +171,12 @@ upload your edited file onto GCS, making note of the path it was uploaded to
 ``` bash
 # From tensorflow-visual-inspection/models/
 
-# Edit the faster_rcnn_resnet101_pets.config template. Please note that there
-# are multiple places where PATH_TO_BE_CONFIGURED needs to be set.
-sed -i "s|PATH_TO_BE_CONFIGURED|"gs://${YOUR_GCS_BUCKET}"/data|g" \
-    object_detection/samples/configs/faster_rcnn_resnet101_pets.config
+# Edit the faster_rcnn_resnet101_screws.config template. Please note that there
+# are multiple places where your GCS bucket needs to be set.
 
 # Copy edited template to cloud.
-gsutil cp object_detection/samples/configs/faster_rcnn_resnet101_pets.config \
-    gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_pets.config
+gsutil cp object_detection/samples/configs/faster_rcnn_resnet101_screws.config \
+    gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_screws.config
 ```
 
 ## Checking Your Google Cloud Storage Bucket
@@ -190,13 +189,13 @@ the following:
 ```lang-none
 + ${YOUR_GCS_BUCKET}/
   + data/
-    - faster_rcnn_resnet101_pets.config
+    - faster_rcnn_resnet101_screws.config
     - model.ckpt.index
     - model.ckpt.meta
     - model.ckpt.data-00000-of-00001
-    - pet_label_map.pbtxt
-    - pet_train.record
-    - pet_val.record
+    - screw_label_map.pbtxt
+    - screw_train.record
+    - screw_val.record
 ```
 
 You can inspect your bucket using the [Google Cloud Storage
@@ -238,7 +237,7 @@ gcloud ml-engine jobs submit training `whoami`_object_detection_`date +%s` \
     --config object_detection/samples/cloud/cloud.yml \
     -- \
     --train_dir=gs://${YOUR_GCS_BUCKET}/train \
-    --pipeline_config_path=gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_pets.config
+    --pipeline_config_path=gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_screws.config
 ```
 
 Once training has started, we can run an evaluation concurrently:
@@ -254,7 +253,7 @@ gcloud ml-engine jobs submit training `whoami`_object_detection_eval_`date +%s` 
     -- \
     --checkpoint_dir=gs://${YOUR_GCS_BUCKET}/train \
     --eval_dir=gs://${YOUR_GCS_BUCKET}/eval \
-    --pipeline_config_path=gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_pets.config
+    --pipeline_config_path=gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_screws.config
 ```
 
 Note: Even though we're running an evaluation job, the `gcloud ml-engine jobs
@@ -318,7 +317,7 @@ command from `tensorflow-visual-inspection/models`:
 gsutil cp gs://${YOUR_GCS_BUCKET}/train/model.ckpt-${CHECKPOINT_NUMBER}.* .
 python object_detection/export_inference_graph.py \
     --input_type image_tensor \
-    --pipeline_config_path object_detection/samples/configs/faster_rcnn_resnet101_pets.config \
+    --pipeline_config_path object_detection/samples/configs/faster_rcnn_resnet101_screws.config \
     --checkpoint_path model.ckpt-${CHECKPOINT_NUMBER} \
     --inference_graph_path output_inference_graph.pb
 ```
