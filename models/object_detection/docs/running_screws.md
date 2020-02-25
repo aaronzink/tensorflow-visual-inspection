@@ -104,7 +104,7 @@ screws dataset into TFRecords. Run the following commands from the
 
 ``` bash
 # From tensorflow-visual-inspection/models/
-python object_detection/create_screw_tf_record.py \
+python object_detection/create_screws_tf_record.py \
     --label_map_path=object_detection/data/screw_label_map.pbtxt \
     --data_dir=`pwd` \
     --output_dir=`pwd`
